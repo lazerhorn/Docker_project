@@ -291,7 +291,6 @@ def main() -> None:
 
     # Get parameters from the configuration file
     input_file = config['PARAMETERS']['INPUT_FILE']
-    output_file = config['PARAMETERS']['PROCESSED_FILE']
     cols_to_use = config['PARAMETERS']['COLS_TO_USE']
     float_cols = config['PARAMETERS']['FLOAT_COLS']
     cat_cols = config['PARAMETERS']['CAT_COLS']

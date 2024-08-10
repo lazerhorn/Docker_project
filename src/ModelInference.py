@@ -29,7 +29,7 @@ def print_output_text_with_color(text: str, color: str) -> None:
     if color == 'yellow': 
         current_stage += 1
 
-    print(f'{color_codes["blue"]}({current_file_name}): {color_codes[color]}{str(current_stage) + "/10"} {text} {color_codes["reset"]}')
+    print(f'{color_codes["blue"]}({current_file_name}): {color_codes[color]}{str(current_stage) + "/4"} {text} {color_codes["reset"]}')
     
 def load_config(config_file: str = 'config.yml') -> dict:
     """Loads the YAML configuration file.
@@ -62,56 +62,32 @@ def process_escape_sequences(color_dict: dict) -> dict:
         color_dict[key] = value.encode().decode('unicode_escape')
     return color_dict
 
-def load_latest_training_data(folder_path: str, target_col: str):
-    """Loads the latest CSV file containing training data from a specified folder.
+def load_latest_validation_data(folder_path: str, target_col: str):
+    """Loads the latest CSV file containing validation data from a specified folder.
 
     Args:
         folder_path (str): Path to the folder containing the CSV files.
         target_col (str): The name of the target column.
 
     Returns:
-        tuple: Features (X_train) and target (y_train) from the latest training data file.
+        tuple: Features (X_val) and target (y_val) from the latest validation data file.
     """
     try:
         # Find the latest file in the folder
         files = [f for f in os.listdir(folder_path) if f.endswith('.csv')]
         latest_file = max([os.path.join(folder_path, f) for f in files], key=os.path.getmtime)
         
-        print_output_text_with_color(f"Loading training data from the latest file: {latest_file}", 'yellow')
+        print_output_text_with_color(f"Loading validation data from the latest file: {latest_file}", 'yellow')
         data = pd.read_csv(latest_file)
-        X_train = data.drop(target_col, axis=1)
-        y_train = data[target_col]
+        X_val = data.drop(target_col, axis=1)
+        y_val = data[target_col]
         
-        print_output_text_with_color("Training data successfully loaded.", 'green')
-        return X_train, y_train
+        print_output_text_with_color("Validation data successfully loaded.", 'green')
+        return X_val, y_val
     except Exception as e:
-        print_output_text_with_color(f"Error processing the training data from folder {folder_path}: {e}", 'red')
+        print_output_text_with_color(f"Error processing the validation data from folder {folder_path}: {e}", 'red')
         sys.exit(1)
 
-def train_model(model_name: str, X_train: pd.DataFrame, y_train: pd.Series, model_hyperparameters: dict):
-    """Trains a specified model with the given hyperparameters.
-
-    Args:
-        model_name (str): The name of the model ('rf' or 'xgb').
-        X_train (pd.DataFrame): Training features.
-        y_train (pd.Series): Training target.
-        model_hyperparameters (dict): Hyperparameters for the model.
-
-    Returns:
-        model: Trained model.
-    """
-    try:
-        print_output_text_with_color(f"Training model {model_name}", 'yellow')
-        if model_name == 'rf':
-            model = RandomForestClassifier(**model_hyperparameters)
-        elif model_name == 'xgb':
-            model = xgb.XGBClassifier(**model_hyperparameters)
-        model.fit(X_train, y_train)
-        print_output_text_with_color(f"Training model {model_name} successfully", 'green')
-        return model
-    except Exception as e:
-        print_output_text_with_color(f"Error training the model {model_name}: {e}", 'red')
-        sys.exit(1)
 
 def evaluate_model(model_name: str, model, X: pd.DataFrame, y: pd.Series, dataset_name: str) -> None:
     """Evaluates the model on the specified dataset.
@@ -134,6 +110,7 @@ def evaluate_model(model_name: str, model, X: pd.DataFrame, y: pd.Series, datase
     except Exception as e:
         print_output_text_with_color(f"Error evaluating the model {model_name} on {dataset_name} set: {e}", 'red')
         sys.exit(1)
+
 
 def get_model_accuracy(model_name: str, y_true: pd.Series, y_pred: np.ndarray) -> None:
     """Calculates and prints the accuracy of the model.
@@ -226,20 +203,17 @@ def check_thresholds(model_name: str, y_true: pd.Series, y_pred: np.ndarray) -> 
         print_output_text_with_color(f"(model {model_name}): Model does not meet all the required thresholds.", 'red')
         print(f'Accuracy: {accuracy}, Precision: {precision}, Recall: {recall}, F1-score: {f1_score}')
 
-def save_model(model, model_name: str, save_dir: str) -> None:
-    """Saves the trained model to a specified subfolder within the directory.
+def load_latest_model(save_dir: str, model_name: str):
+    """Loads the latest saved model from the specified subfolder within the directory.
 
     Args:
-        model: Trained model.
-        model_name (str): The name of the model.
-        save_dir (str): Parent directory to save the model.
+        save_dir (str): Parent directory containing the model subfolders.
+        model_name (str): The name of the model ('rf' for Random Forest, 'xgb' for XGBoost).
 
-    Raises:
-        ValueError: If the model_name is not recognized.
+    Returns:
+        model: The latest loaded model.
     """
     try:
-        print_output_text_with_color(f"Saving model {model_name}", 'yellow')
-        
         # Determine the subfolder based on the model name
         if model_name.lower() == "rf":
             subfolder = "model_rf"
@@ -248,25 +222,27 @@ def save_model(model, model_name: str, save_dir: str) -> None:
         else:
             raise ValueError("Model name not recognized. Please use 'rf' for Random Forest or 'xgb' for XGBoost.")
 
-        # Create the full save directory path
+        # Create the full path to the subfolder
         full_save_dir = os.path.join(save_dir, subfolder)
-        if not os.path.exists(full_save_dir):
-            os.makedirs(full_save_dir)
         
-        # Save the model with a timestamp
-        current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
-        save_path = os.path.join(full_save_dir, f'{current_time}_{model_name}.pkl')
-        with open(save_path, 'wb') as f:
-            pickle.dump(model, f)
+        # Find the latest model file in the subfolder
+        files = [f for f in os.listdir(full_save_dir) if f.endswith('.pkl')]
+        latest_file = max([os.path.join(full_save_dir, f) for f in files], key=os.path.getmtime)
         
-        print_output_text_with_color(f"Model {model_name} saved to {save_path}", 'green')
+        # Load and return the latest model
+        with open(latest_file, 'rb') as f:
+            model = pickle.load(f)
+        
+        print_output_text_with_color(f"Loaded the latest model from {latest_file}", 'green')
+        return model
     
     except ValueError as ve:
         print_output_text_with_color(str(ve), 'red')
         sys.exit(1)
     except Exception as e:
-        print_output_text_with_color(f"Error saving the model {model_name}: {e}", 'red')
+        print_output_text_with_color(f"Error loading the latest model: {e}", 'red')
         sys.exit(1)
+
 
 def main():
     global current_file_name
@@ -275,10 +251,9 @@ def main():
     # Load configuration parameters
     config = load_config()
 
-    processed_data_path_train = config['PARAMETERS']['PROCESSED_FILE_TRAIN']
+    processed_data_path_test = config['PARAMETERS']['PROCESSED_FILE_VALIDATE']
     saved_models_path = config['PARAMETERS']['SAVED_MODELS_PATH']
     models_to_train = config['PARAMETERS']['MODELS_TO_TRAIN']
-    model_hyperparameters = config['PARAMETERS']['MODEL_HYPERPARAMETERS']
     current_file_name = config['PARAMETERS']['FILE_NAME_DATAMODELING']
     color_codes = config['PARAMETERS']['COLOR_DICT']
     target_col = config['PARAMETERS']['TARGET_COL']
@@ -286,14 +261,12 @@ def main():
 
 
     # Get training, testing, and validation datasets
-    X_train, y_train = load_latest_training_data(processed_data_path_train, target_col)
+    X_val, y_val = load_latest_validation_data(processed_data_path_test, target_col)
 
     for model_name in models_to_train:
-        model = train_model(model_name, X_train, y_train, model_hyperparameters[model_name])
-        # evaluate_model(model_name, model, X_train, y_train, 'training')
-        # evaluate_model(model_name, model, X_val, y_val, 'Validation')
-        save_model(model, model_name, saved_models_path)
-        # print_output_text_with_color(f"(model {model_name}): Model evaluation done!", 'green')
+        model = load_latest_model(saved_models_path, model_name)
+        evaluate_model(model_name, model, X_val, y_val, 'Validation')
+        print_output_text_with_color(f"(model {model_name}): Model evaluation done!", 'green')
 
 if __name__ == "__main__":
     main()

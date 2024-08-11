@@ -9,3 +9,6 @@
 
 # Unignore everything inside the 'src' folder
 !src/**
+
+
+!docker-compose.yml

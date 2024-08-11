@@ -3,7 +3,6 @@ from sklearn.preprocessing import OneHotEncoder, MinMaxScaler
 import yaml
 import os
 import numpy as np
-from scipy import stats
 import sys
 from datetime import datetime
 from sklearn.model_selection import train_test_split
@@ -27,7 +26,7 @@ def print_output_text_with_color(text: str, color: str) -> None:
 
     print(f'{color_codes["blue"]}({current_file_name}): {color_codes[color]}{str(current_stage) + "/11"} {text} {color_codes["reset"]}')
 
-def load_config(config_file: str = 'config.yml') -> dict:
+def load_config(config_file: str = '/data/config/config.yml') -> dict:
     """Loads the YAML configuration file.
 
     Args:

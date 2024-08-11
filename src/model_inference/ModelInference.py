@@ -4,13 +4,9 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
-import xgboost as xgb
 import pickle
-from sklearn.model_selection import train_test_split
 import yaml
-from datetime import datetime
 
 # Global variables
 current_stage = 1
@@ -31,7 +27,7 @@ def print_output_text_with_color(text: str, color: str) -> None:
 
     print(f'{color_codes["blue"]}({current_file_name}): {color_codes[color]}{str(current_stage) + "/4"} {text} {color_codes["reset"]}')
     
-def load_config(config_file: str = 'config.yml') -> dict:
+def load_config(config_file: str = '/data/config/config.yml') -> dict:
     """Loads the YAML configuration file.
 
     Args:

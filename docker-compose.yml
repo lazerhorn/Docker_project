@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  data_processing:
+    build: ./src/data_processing
+    volumes:
+      - ./raw_data:/data/raw
+      - ./processed_data/training_data:/data/training_data
+      - ./processed_data/validation_data:/data/validation_data
+      - ./shared_config:/data/config
+    networks:
+      - my_network
+
+  data_modelling:
+    build: ./src/data_modelling
+    volumes:
+      - ./processed_data/training_data:/data/training_data
+      - ./processed_data/validation_data:/data/validation_data
+      - ./saved_model/model_rf:/data/model_rf
+      - ./saved_model/model_xgb:/data/model_xgb
+      - ./shared_config:/data/config
+    networks:
+      - my_network
+    depends_on:
+      - data_processing
+
+  model_inference:
+    build: ./src/model_inference
+    volumes:
+      - ./processed_data/validation_data:/data/validation_data
+      - ./saved_model/model_rf:/data/model_rf
+      - ./saved_model/model_xgb:/data/model_xgb
+      - ./shared_config:/data/config
+    networks:
+      - my_network
+    depends_on:
+      - data_modelling
+
+networks:
+  my_network:

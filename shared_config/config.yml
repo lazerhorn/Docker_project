@@ -74,7 +74,7 @@ PARAMETERS:
       min_samples_split: 10
       random_state: 42
     xgb:
-      n_estimators: 300
+      n_estimators: 200
       max_depth: 40
       subsample: 0.2
       colsample_bytree: 0.5

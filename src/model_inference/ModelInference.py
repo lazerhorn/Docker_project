@@ -223,12 +223,13 @@ def load_latest_model(save_dir: str, model_name: str):
         
         # Find the latest model file in the subfolder
         files = [f for f in os.listdir(full_save_dir) if f.endswith('.pkl')]
+        print(files)
         latest_file = max([os.path.join(full_save_dir, f) for f in files], key=os.path.getmtime)
-        
+        print(latest_file)
         # Load and return the latest model
         with open(latest_file, 'rb') as f:
             model = pickle.load(f)
-        
+            print(model)
         print_output_text_with_color(f"Loaded the latest model from {latest_file}", 'green')
         return model
     

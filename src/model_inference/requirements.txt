@@ -5,3 +5,4 @@ plotly==5.18.0
 numpy==1.21.6
 pyyaml==6.0.1
 scikit-learn==1.0.2
+xgboost==1.1.0

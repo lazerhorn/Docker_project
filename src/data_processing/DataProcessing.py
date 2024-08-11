@@ -258,10 +258,10 @@ def save_data(df: pd.DataFrame, output_folder: str = "processed_data", test_size
         training_folder = os.path.join(output_folder, "training_data")
         validation_folder = os.path.join(output_folder, "validation_data")
 
-        if not os.path.exists(training_folder):
-            os.makedirs(training_folder)
-        if not os.path.exists(validation_folder):
-            os.makedirs(validation_folder)
+        # if not os.path.exists(training_folder):
+        #     os.makedirs(training_folder)
+        # if not os.path.exists(validation_folder):
+        #     os.makedirs(validation_folder)
 
         # Generate output file names with current date and time
         current_time = datetime.now().strftime("%Y%m%d_%H%M%S")

@@ -16,3 +16,5 @@
 !shared_config/
 
 !shared_config/** 
+
+!orchestrator.sh

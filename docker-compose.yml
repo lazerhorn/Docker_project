@@ -3,9 +3,9 @@ services:
   data_processing:
     build: ./src/data_processing
     volumes:
-      - ./raw_data:/data/raw
-      - ./processed_data/training_data:/data/training_data
-      - ./processed_data/validation_data:/data/validation_data
+      - ./raw_data:/data/raw # Bind mount (linked to your local filesystem)
+      - training_data:/data/training_data # Named volume
+      - validation_data:/data/validation_data # Named volume
       - ./shared_config:/data/config
     networks:
       - my_network
@@ -13,10 +13,10 @@ services:
   data_modelling:
     build: ./src/data_modelling
     volumes:
-      - ./processed_data/training_data:/data/training_data
-      - ./processed_data/validation_data:/data/validation_data
-      - ./saved_model/model_rf:/data/model_rf
-      - ./saved_model/model_xgb:/data/model_xgb
+      - training_data:/data/training_data # Named volume
+      - validation_data:/data/validation_data # Named volume
+      - model_rf:/data/model_rf # Named volume
+      - model_xgb:/data/model_xgb # Named volume
       - ./shared_config:/data/config
     networks:
       - my_network
@@ -26,9 +26,9 @@ services:
   model_inference:
     build: ./src/model_inference
     volumes:
-      - ./processed_data/validation_data:/data/validation_data
-      - ./saved_model/model_rf:/data/model_rf
-      - ./saved_model/model_xgb:/data/model_xgb
+      - validation_data:/data/validation_data # Named volume
+      - model_rf:/data/model_rf # Named volume
+      - model_xgb:/data/model_xgb # Named volume
       - ./shared_config:/data/config
     networks:
       - my_network
@@ -37,3 +37,10 @@ services:
 
 networks:
   my_network:
+
+volumes:
+  training_data:
+  validation_data:
+  model_rf:
+  model_xgb:
+  config:

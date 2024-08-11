@@ -12,3 +12,7 @@
 
 
 !docker-compose.yml
+
+!shared_config/
+
+!shared_config/** 

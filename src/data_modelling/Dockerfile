@@ -1,6 +1,12 @@
 # Use the official Python base image
 FROM python:3.7-slim
 
+# Install OpenMP runtime
+RUN apt-get update && \
+    apt-get install -y libgomp1 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+        
 # Set the working directory in the container
 WORKDIR /app
 

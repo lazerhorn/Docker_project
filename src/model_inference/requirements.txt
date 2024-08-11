@@ -3,4 +3,5 @@ seaborn==0.12.2
 matplotlib==3.5.3
 plotly==5.18.0
 numpy==1.21.6
-
+pyyaml==6.0.1
+scikit-learn==1.0.2

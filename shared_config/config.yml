@@ -1,0 +1,140 @@
+PARAMETERS:
+  INPUT_FILE: /data/raw/pets_prepared.csv  # Path to the input CSV file containing the prepared pet data
+  PROCESSED_FILE_TRAIN: /data/training_data  # Path where the processed data will be saved
+  PROCESSED_FILE_VALIDATE: /data/validation_data  # Path where the processed data will be saved
+  SAVED_PROCESSED_PATH: data  # Directory where processed data will be stored
+  SAVED_MODELS_PATH: data  # Directory where trained models will be saved
+  FILE_NAME_DATAPROCESSING: DataProcessing.py  # Name of the script for data processing
+  FILE_NAME_DATAMODELING: DataModelling.py  # Name of the script for data modeling
+  VALIDATION_SIZE: 0.3  # Proportion of the dataset to be used for validation
+  TEST_SIZE: 0.2  # Proportion of the dataset to be used for testing
+  OUTLIER_THRESHOLD_TOP: 0.99  # Upper threshold for outlier detection
+  OUTLIER_THRESHOLD_LOW: 0.01  # Lower threshold for outlier detection
+  COLS_TO_USE:  # List of columns to use for modeling
+    - Type
+    - Age
+    - Breed1
+    - Breed2
+    - Gender
+    - Color1
+    - Color2
+    - Color3
+    - MaturitySize
+    - FurLength
+    - Vaccinated
+    - Dewormed
+    - Sterilized
+    - Health
+    - Quantity
+    - Fee
+    - State
+    - VideoAmt
+    - PhotoAmt
+    - AdoptionSpeed
+    - NameorNO
+    - BreedPure
+    - ColorAmt
+    - Free
+  CAT_COLS:  # List of categorical columns
+    - Type
+    - Breed1
+    - Breed2
+    - Gender
+    - Color1
+    - Color2
+    - Color3
+    # - MaturitySize # ordinal values
+    # - FurLength
+    - Vaccinated
+    - Dewormed
+    - Sterilized
+    # - Health
+    - State
+    - NameorNO
+    - BreedPure
+    - ColorAmt
+    - Free
+  FLOAT_COLS:  # List of float columns
+    - Age
+    - Quantity
+    # - Fee
+    # - VideoAmt
+    # - PhotoAmt
+  TARGET_COL: AdoptionSpeed  # Target column for modeling
+  MODELS_TO_TRAIN:  # List of models to train
+    - rf  # Random Forest
+    - xgb  # XGBoost
+    
+  MODEL_HYPERPARAMETERS:  # Hyperparameters for each model
+    rf:
+      n_estimators: 300
+      criterion: gini
+      max_depth: 40
+      min_samples_split: 10
+      random_state: 42
+    xgb:
+      n_estimators: 300
+      max_depth: 40
+      subsample: 0.2
+      colsample_bytree: 0.5
+      random_state: 42
+
+  COLS_TO_FEATURE_ENGINEER:  # Columns to apply feature engineering
+    Fee: 
+    - 0
+    - Free
+    NameorNO:
+    - "Y"
+    - NameorNO
+    BreedPure: 
+    - "Y"
+    - BreedPure
+  COLS_TO_BIN:  # Columns to apply binning
+    Fee: 
+      labels: 
+      - 0
+      - 1 
+      - 2
+      - 3
+      - 4
+      bins:
+      - -1
+      - 0
+      - 100
+      - 200
+      - 300
+      - inf
+    PhotoAmt: 
+      labels:
+      - 0
+      - 1
+      - 2
+      - 3
+      bins: 
+      - -1
+      - 0
+      - 2
+      - 5
+      - inf
+    VideoAmt: 
+      labels:
+      - 0
+      - 1
+      - 2 
+      - 3
+      bins: 
+      - -1
+      - 0
+      - 1
+      - 2
+      - inf
+  
+  COLOR_DICT:  # Dictionary for color codes
+    red: '\033[31m'
+    green: '\033[32m'
+    blue: '\033[34m'
+    yellow: '\033[33m'
+    mangenta: '\033[35m' 
+    cyan: '\033[36m'
+    white: '\033[37m'
+    reset: '\033[0m'

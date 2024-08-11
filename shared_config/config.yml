@@ -6,6 +6,7 @@ PARAMETERS:
   SAVED_MODELS_PATH: /data  # Directory where trained models will be saved
   FILE_NAME_DATAPROCESSING: DataProcessing.py  # Name of the script for data processing
   FILE_NAME_DATAMODELING: DataModelling.py  # Name of the script for data modeling
+  FILE_NAME_MODELINFERENCE: ModelInference.py  # Name of the script for data inference
   VALIDATION_SIZE: 0.3  # Proportion of the dataset to be used for validation
   TEST_SIZE: 0.2  # Proportion of the dataset to be used for testing
   OUTLIER_THRESHOLD_TOP: 0.99  # Upper threshold for outlier detection

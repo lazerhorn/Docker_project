@@ -250,7 +250,7 @@ def main():
     processed_data_path_test = config['PARAMETERS']['PROCESSED_FILE_VALIDATE']
     saved_models_path = config['PARAMETERS']['SAVED_MODELS_PATH']
     models_to_train = config['PARAMETERS']['MODELS_TO_TRAIN']
-    current_file_name = config['PARAMETERS']['FILE_NAME_DATAMODELING']
+    current_file_name = config['PARAMETERS']['FILE_NAME_MODELINFERENCE']
     color_codes = config['PARAMETERS']['COLOR_DICT']
     target_col = config['PARAMETERS']['TARGET_COL']
     color_codes = process_escape_sequences(color_codes)

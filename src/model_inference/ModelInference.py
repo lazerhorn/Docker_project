@@ -3,6 +3,7 @@ import sys
 import numpy as np
 import pandas as pd
 import seaborn as sns
+from datetime import datetime
 import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 import pickle
@@ -27,7 +28,7 @@ def print_output_text_with_color(text: str, color: str) -> None:
 
     print(f'{color_codes["blue"]}({current_file_name}): {color_codes[color]}{str(current_stage) + "/4"} {text} {color_codes["reset"]}')
     
-def load_config(config_file: str = '/data/config/config.yml') -> dict:
+def load_config(config_file: str = 'data/config/config.yml') -> dict:
     """Loads the YAML configuration file.
 
     Args:
@@ -58,6 +59,46 @@ def process_escape_sequences(color_dict: dict) -> dict:
         color_dict[key] = value.encode().decode('unicode_escape')
     return color_dict
 
+def ensure_directory_exists(directory: str) -> None:
+    """Ensures that the given directory exists. Creates it if necessary.
+
+    Args:
+        directory (str): The path of the directory to check/create.
+    """
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+def save_to_file(file_name: str, content: str, subfolder: str) -> None:
+    """Saves the given content to a file within a specified subfolder, including the current date and time in the filename.
+
+    Args:
+        file_name (str): The base name of the file to save the content to.
+        content (str): The content to write to the file.
+        subfolder (str): The subfolder under saved_metrics where the file will be saved.
+    """
+    try:
+        # Generate a timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        # Create the full path to the subfolder
+        full_save_dir = os.path.join('data/saved_metrics', subfolder)
+        
+        # Ensure the subfolder exists
+        ensure_directory_exists(full_save_dir)
+        
+        # Create the full path to the file with timestamp
+        full_file_name = f"{file_name}_{timestamp}.txt"
+        full_file_path = os.path.join(full_save_dir, full_file_name)
+        
+        # Save the content to the file
+        with open(full_file_path, 'w') as file:
+            file.write(content)
+        print_output_text_with_color(f"Saved metrics to {full_file_path}", 'green')
+    except Exception as e:
+        print_output_text_with_color(f"Error saving metrics to {full_file_path}: {e}", 'red')
+        sys.exit(1)
+
+
 def load_latest_validation_data(folder_path: str, target_col: str):
     """Loads the latest CSV file containing validation data from a specified folder.
 
@@ -84,79 +125,47 @@ def load_latest_validation_data(folder_path: str, target_col: str):
         print_output_text_with_color(f"Error processing the validation data from folder {folder_path}: {e}", 'red')
         sys.exit(1)
 
-
-def evaluate_model(model_name: str, model, X: pd.DataFrame, y: pd.Series, dataset_name: str) -> None:
-    """Evaluates the model on the specified dataset.
-
-    Args:
-        model_name (str): The name of the model.
-        model: Trained model.
-        X (pd.DataFrame): Features of the dataset.
-        y (pd.Series): True labels of the dataset.
-        dataset_name (str): Name of the dataset ('Test' or 'Validation').
-    """
-    try:
-        print_output_text_with_color(f"Evaluating model {model_name} on {dataset_name} set", 'yellow')
-        y_pred = model.predict(X)
-        print_output_text_with_color(f"Evaluation results for {dataset_name} set:", 'green')
-        get_model_accuracy(model_name, y, y_pred)
-        get_model_classification_report(model_name, y, y_pred)
-        get_confusion_matrix(model_name, y, y_pred, plot_heatmap=True)
-        check_thresholds(model_name, y, y_pred)
-    except Exception as e:
-        print_output_text_with_color(f"Error evaluating the model {model_name} on {dataset_name} set: {e}", 'red')
-        sys.exit(1)
-
-
 def get_model_accuracy(model_name: str, y_true: pd.Series, y_pred: np.ndarray) -> None:
-    """Calculates and prints the accuracy of the model.
-
-    Args:
-        model_name (str): The name of the model.
-        y_true (pd.Series): True labels.
-        y_pred (np.ndarray): Predicted labels.
-    """
     accuracy = accuracy_score(y_true, y_pred)
+    accuracy_text = f"Accuracy: {accuracy:.4f}"
+    
+    # Save to the subfolder based on the model name
+    save_to_file(f"{model_name}_accuracy", accuracy_text, model_name)
+    
+    # Print to console
     print_output_text_with_color(f"(model {model_name}): Accuracy", 'green')
-    print(accuracy)
+    print(accuracy_text)
 
 def get_model_classification_report(model_name: str, y_true: pd.Series, y_pred: np.ndarray) -> dict:
-    """Generates and prints the classification report.
-
-    Args:
-        model_name (str): The name of the model.
-        y_true (pd.Series): True labels.
-        y_pred (np.ndarray): Predicted labels.
-
-    Returns:
-        dict: Classification report.
-    """
     report = classification_report(y_true, y_pred, output_dict=True)
+    report_text = "Classification Report:\n" + classification_report(y_true, y_pred)
+    
+    # Save to the subfolder based on the model name
+    save_to_file(f"{model_name}_classification_report", report_text, model_name)
+    
+    # Print to console
     print_output_text_with_color(f"(model {model_name}): Classification Report", 'green')
-    print("Detailed metrics:")
-    print(report)
-    print(f"Precision: {report['weighted avg']['precision']:.4f}")
-    print(f"Recall: {report['weighted avg']['recall']:.4f}")
-    print(f"F1-Score: {report['weighted avg']['f1-score']:.4f}")
+    print(report_text)
+    
     return report
 
 def get_confusion_matrix(model_name: str, y_true: pd.Series, y_pred: np.ndarray, plot_heatmap: bool = False) -> None:
-    """Generates and optionally plots the confusion matrix.
-
-    Args:
-        model_name (str): The name of the model.
-        y_true (pd.Series): True labels.
-        y_pred (np.ndarray): Predicted labels.
-        plot_heatmap (bool): Whether to plot the confusion matrix as a heatmap.
-    """
     cm = confusion_matrix(y_true, y_pred)
+    cm_text = f"Confusion Matrix:\n{cm}"
+    
+    # Save to the subfolder based on the model name
+    save_to_file(f"{model_name}_confusion_matrix", cm_text, model_name)
+    
+    # Print to console
     print_output_text_with_color(f"(model {model_name}): Confusion matrix", 'green')
     print(cm)
+    
     if plot_heatmap:
         sns.heatmap(cm, annot=True, cmap='Blues', fmt='g')
         plt.xlabel('Predicted')
         plt.ylabel('True')
         plt.show()
+
 
 def check_thresholds(model_name: str, y_true: pd.Series, y_pred: np.ndarray) -> None:
     """Checks if the model meets the required performance thresholds.
@@ -223,13 +232,10 @@ def load_latest_model(save_dir: str, model_name: str):
         
         # Find the latest model file in the subfolder
         files = [f for f in os.listdir(full_save_dir) if f.endswith('.pkl')]
-        print(files)
         latest_file = max([os.path.join(full_save_dir, f) for f in files], key=os.path.getmtime)
-        print(latest_file)
         # Load and return the latest model
         with open(latest_file, 'rb') as f:
             model = pickle.load(f)
-            print(model)
         print_output_text_with_color(f"Loaded the latest model from {latest_file}", 'green')
         return model
     
@@ -240,14 +246,37 @@ def load_latest_model(save_dir: str, model_name: str):
         print_output_text_with_color(f"Error loading the latest model: {e}", 'red')
         sys.exit(1)
 
+def evaluate_model(model_name: str, model, X: pd.DataFrame, y: pd.Series, dataset_name: str) -> None:
+    """Evaluates the model on the specified dataset.
+
+    Args:
+        model_name (str): The name of the model.
+        model: Trained model.
+        X (pd.DataFrame): Features of the dataset.
+        y (pd.Series): True labels of the dataset.
+        dataset_name (str): Name of the dataset ('Test' or 'Validation').
+    """
+    try:
+        print_output_text_with_color(f"Evaluating model {model_name} on {dataset_name} set", 'yellow')
+        y_pred = model.predict(X)
+        print_output_text_with_color(f"Evaluation results for {dataset_name} set:", 'green')
+        get_model_accuracy(model_name, y, y_pred)
+        get_model_classification_report(model_name, y, y_pred)
+        get_confusion_matrix(model_name, y, y_pred, plot_heatmap=True)
+        check_thresholds(model_name, y, y_pred)
+    except Exception as e:
+        print_output_text_with_color(f"Error evaluating the model {model_name} on {dataset_name} set: {e}", 'red')
+        sys.exit(1)
 
 def main():
     global current_file_name
     global color_codes
 
+    # Ensure the directory exists
+    ensure_directory_exists('data/saved_metrics')
+
     # Load configuration parameters
     config = load_config()
-
     processed_data_path_test = config['PARAMETERS']['PROCESSED_FILE_VALIDATE']
     saved_models_path = config['PARAMETERS']['SAVED_MODELS_PATH']
     models_to_train = config['PARAMETERS']['MODELS_TO_TRAIN']
@@ -255,7 +284,6 @@ def main():
     color_codes = config['PARAMETERS']['COLOR_DICT']
     target_col = config['PARAMETERS']['TARGET_COL']
     color_codes = process_escape_sequences(color_codes)
-
 
     # Get training, testing, and validation datasets
     X_val, y_val = load_latest_validation_data(processed_data_path_test, target_col)

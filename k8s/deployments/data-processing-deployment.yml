@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-processing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-processing
+  template:
+    metadata:
+      labels:
+        app: data-processing
+    spec:
+      containers:
+      - name: data-processing
+        image: lazerhorn/caiesubmission-data_processing:latest  # Replace with your actual image name
+        volumeMounts:
+        - name: raw-data
+          mountPath: /data/raw
+        - name: training-data
+          mountPath: /data/training_data
+        - name: validation-data
+          mountPath: /data/validation_data
+        - name: shared-config
+          mountPath: /data/config
+        readinessProbe:
+          httpGet:
+            path: /healthz  # This should match an endpoint that returns 200 OK when the app is ready
+            port: 8080      # Replace with the port your app is listening on
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 1
+          failureThreshold: 3
+      volumes:
+      - name: raw-data
+        hostPath:
+          path: /data/raw
+      - name: training-data
+        persistentVolumeClaim:
+          claimName: pvc-training-data
+      - name: validation-data
+        persistentVolumeClaim:
+          claimName: pvc-validation-data
+      - name: shared-config
+        configMap:
+          name: shared-config

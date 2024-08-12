@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-training-data
+spec:
+  storageClassName: ""  # Explicitly set no storage class
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  volumeName: pv-training-data  # Bind this PVC to the specific PV
+
+

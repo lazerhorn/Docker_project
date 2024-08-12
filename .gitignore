@@ -18,3 +18,7 @@
 !shared_config/** 
 
 !orchestrator.sh
+
+!k8s
+
+!k8s/**

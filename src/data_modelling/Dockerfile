@@ -6,6 +6,9 @@ RUN apt-get update && \
     apt-get install -y libgomp1 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+
+# Set the environment variable to unbuffer Python output
+ENV PYTHONUNBUFFERED=1
         
 # Set the working directory in the container
 WORKDIR /app

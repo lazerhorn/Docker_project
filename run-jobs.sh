@@ -45,50 +45,68 @@ cleanup() {
 }
 
 # Ensure cleanup is done on exit or interruption
-# This ensures the cleanup function is called when the script exits, or when it receives interrupt or terminate signals
 trap cleanup EXIT INT TERM
 
-# Function to get logs from the latest pod of a given job
-get_pod_logs() {
+# Function to wait for Pods to be running
+wait_for_pod_ready() {
     local job_name="$1"
     local pod_name
-    pod_name=$(kubectl get pods --selector=job-name="${job_name}" --output=jsonpath='{.items[-1].metadata.name}')
-    if [ -z "$pod_name" ]; then
-        print_info "$RED" "No pods found for job ${job_name}."
-    else
-        print_info "$CYAN" "Fetching logs for pod ${pod_name}..."
-        kubectl logs "${pod_name}"
-    fi
+
+    echo "Waiting for Pods to be running..."
+    for (( i=0; i<300; i+=10 )); do
+        pod_name=$(kubectl get pods --selector=job-name="${job_name}" --output=jsonpath='{.items[0].metadata.name}')
+
+        if [ -n "$pod_name" ]; then
+            pod_status=$(kubectl get pod "$pod_name" --output=jsonpath='{.status.phase}')
+            
+            if [ "$pod_status" == "Running" ]; then
+                print_info "$GREEN" "Pod ${pod_name} is running."
+                return
+            fi
+        fi
+        
+        sleep 1
+    done
+
+    print_info "$RED" "Timeout waiting for Pod ${pod_name} to be running."
+    exit 1
+}
+
+# Function to stream logs from a Pod associated with a job
+stream_pod_logs() {
+    local job_name="$1"
+    local pod_name
+
+    while true; do
+        pod_name=$(kubectl get pods --selector=job-name="${job_name}" --output=jsonpath='{.items[0].metadata.name}')
+        
+        if [ -n "$pod_name" ]; then
+            print_info "$CYAN" "Streaming logs for pod ${pod_name}..."
+            kubectl logs -f "${pod_name}"
+            break
+        else
+            print_info "$RED" "No pods found for job ${job_name}. Retrying..."
+            sleep 1
+        fi
+    done
 }
 
 # Run data-processing-job
 print_info "$CYAN" "Applying data-processing-job..."
 kubectl apply -f k8s/jobs/data-processing-job.yml
-print_info "$CYAN" "Waiting for data-processing-job to complete..."
-kubectl wait --for=condition=complete job/data-processing-job --timeout=30m
-print_info "$GREEN" "Data-processing-job completed."
-
-# Fetch logs for data-processing-job
-get_pod_logs "data-processing-job"
+wait_for_pod_ready "data-processing-job"
+stream_pod_logs "data-processing-job"
 
 # Run data-modelling-job
 print_info "$CYAN" "Applying data-modelling-job..."
 kubectl apply -f k8s/jobs/data-modelling-job.yml
-print_info "$CYAN" "Waiting for data-modelling-job to complete..."
-kubectl wait --for=condition=complete job/data-modelling-job --timeout=30m
-print_info "$GREEN" "Data-modelling-job completed."
-
-# Fetch logs for data-modelling-job
-get_pod_logs "data-modelling-job"
+wait_for_pod_ready "data-modelling-job"
+stream_pod_logs "data-modelling-job"
 
 # Run model-inference-job
 print_info "$CYAN" "Applying model-inference-job..."
 kubectl apply -f k8s/jobs/model-inference-job.yml
-print_info "$CYAN" "Waiting for model-inference-job to complete..."
-kubectl wait --for=condition=complete job/model-inference-job --timeout=30m
-print_info "$GREEN" "Model-inference-job completed."
-
-# Fetch logs for model-inference-job
-get_pod_logs "model-inference-job"
+wait_for_pod_ready "model-inference-job"
+stream_pod_logs "model-inference-job"
 
 print_info "$GREEN" "All jobs have been processed."

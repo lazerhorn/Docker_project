@@ -28,7 +28,7 @@ def print_output_text_with_color(text: str, color: str, current_file_name: str =
     if color == 'yellow': 
         current_stage += 1
 
-    print(f'{color_codes.get("blue", "")}({current_file_name}): {color_codes.get(color, "")}{str(current_stage) + "/4"} {text} {color_codes.get("reset", "")}')
+    print(f'{color_codes.get("blue", "")}({current_file_name}): {color_codes.get(color, "")}{str(current_stage) + "/10"} {text} {color_codes.get("reset", "")}')
     
 def load_config(config_file: str = '/data/config/config.yml') -> dict:
     """Loads the YAML configuration file.
@@ -91,15 +91,12 @@ def save_to_file(file_name: str, content: str, model_name: str, current_file_nam
 
         # Create the full path to the subfolder
         full_save_dir = os.path.join('/data', 'saved_metrics', subfolder)
-        full_save_dir = os.path.normpath(full_save_dir)  # Normalize the path
-
         # Ensure the subfolder exists
         ensure_directory_exists(full_save_dir)
 
         # Create the full path to the file with timestamp
         full_file_name = f"{file_name}_{timestamp}.txt"
         full_file_path = os.path.join(full_save_dir, full_file_name)
-        
         # Save the content to the file
         with open(full_file_path, 'w') as file:
             file.write(content)

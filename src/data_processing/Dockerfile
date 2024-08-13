@@ -1,6 +1,9 @@
 # Use the official Python base image
 FROM python:3.7-slim
 
+# Set the environment variable to unbuffer Python output
+ENV PYTHONUNBUFFERED=1
+
 # Set the working directory in the container
 WORKDIR /app
 

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: model-inference
-        image: lazerhorn/model_inference:latestv2
+        image: lazerhorn/model_inference:latestv4
         volumeMounts:
         - name: validation-data
           mountPath: /data/validation_data

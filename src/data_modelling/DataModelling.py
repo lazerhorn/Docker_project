@@ -71,7 +71,6 @@ def load_latest_training_data(folder_path: str, target_col: str):
     try:
         # Find the latest file in the folder
         files = [f for f in os.listdir(folder_path) if f.endswith('.csv')]
-        print(files)
         latest_file = max([os.path.join(folder_path, f) for f in files], key=os.path.getmtime)
         
         print_output_text_with_color(f"Loading training data from the latest file: {latest_file}", 'yellow')

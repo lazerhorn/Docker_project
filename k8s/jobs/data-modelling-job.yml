@@ -14,7 +14,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: data-modelling
-        image: lazerhorn/my-repo:latest 
+        image: lazerhorn/data_modelling:latestv3
         volumeMounts:
         - name: training-data
           mountPath: /data/training_data

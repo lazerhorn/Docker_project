@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: data-modelling
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-modelling
+  template:
+    metadata:
+      labels:
+        app: data-modelling
+    spec:
+      containers:
+      - name: data-modelling
+        image: lazerhorn/my-repo:latest  # Replace with your actual image name
+        volumeMounts:
+        - name: training-data
+          mountPath: /data/training_data
+        - name: validation-data
+          mountPath: /data/validation_data
+        - name: model-rf
+          mountPath: /data/model_rf
+        - name: model-xgb
+          mountPath: /data/model_xgb
+        - name: shared-config
+          mountPath: /data/config
+      volumes:
+      - name: training-data
+        persistentVolumeClaim:
+          claimName: pvc-training-data
+      - name: validation-data
+        persistentVolumeClaim:
+          claimName: pvc-validation-data
+      - name: model-rf
+        persistentVolumeClaim:
+          claimName: pvc-model-rf
+      - name: model-xgb
+        persistentVolumeClaim:
+          claimName: pvc-model-xgb
+      - name: shared-config
+        configMap:
+          name: shared-config

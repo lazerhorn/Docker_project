@@ -1,0 +1,37 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: data-processing-job
+spec:
+  template:
+    metadata:
+      labels:
+        app: data-processing
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: data-processing
+        image: lazerhorn/caiesubmission-data_processing:latest
+        volumeMounts:
+        - name: raw-data
+          mountPath: /data/raw
+        - name: training-data
+          mountPath: /data/training_data
+        - name: validation-data
+          mountPath: /data/validation_data
+        - name: shared-config
+          mountPath: /data/config
+      volumes:
+      - name: raw-data
+        hostPath:
+          path: /data/raw
+      - name: training-data
+        persistentVolumeClaim:
+          claimName: pvc-training-data
+      - name: validation-data
+        persistentVolumeClaim:
+          claimName: pvc-validation-data
+      - name: shared-config
+        configMap:
+          name: shared-config
+  backoffLimit: 4

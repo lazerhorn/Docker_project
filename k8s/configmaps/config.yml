@@ -1,0 +1,138 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shared-config
+data:
+  config.yml: |
+    PARAMETERS:
+      INPUT_FILE: /data/raw/pets_prepared.csv
+      PROCESSED_FILE_TRAIN: /data/training_data
+      PROCESSED_FILE_VALIDATE: /data/validation_data
+      SAVED_PROCESSED_PATH: /data
+      SAVED_MODELS_PATH: /data
+      FILE_NAME_DATAPROCESSING: DataProcessing.py
+      FILE_NAME_DATAMODELING: DataModelling.py
+      FILE_NAME_MODELINFERENCE: ModelInference.py
+      VALIDATION_SIZE: 0.3
+      TEST_SIZE: 0.2
+      OUTLIER_THRESHOLD_TOP: 0.99
+      OUTLIER_THRESHOLD_LOW: 0.01
+      COLS_TO_USE:
+        - Type
+        - Age
+        - Breed1
+        - Breed2
+        - Gender
+        - Color1
+        - Color2
+        - Color3
+        - MaturitySize
+        - FurLength
+        - Vaccinated
+        - Dewormed
+        - Sterilized
+        - Health
+        - Quantity
+        - Fee
+        - State
+        - VideoAmt
+        - PhotoAmt
+        - AdoptionSpeed
+        - NameorNO
+        - BreedPure
+        - ColorAmt
+        - Free
+      CAT_COLS:
+        - Type
+        - Breed1
+        - Breed2
+        - Gender
+        - Color1
+        - Color2
+        - Color3
+        - Vaccinated
+        - Dewormed
+        - Sterilized
+        - State
+        - NameorNO
+        - BreedPure
+        - ColorAmt
+        - Free
+      FLOAT_COLS:
+        - Age
+        - Quantity
+      TARGET_COL: AdoptionSpeed
+      MODELS_TO_TRAIN:
+        - rf
+        - xgb
+      MODEL_HYPERPARAMETERS:
+        rf:
+          n_estimators: 300
+          criterion: gini
+          max_depth: 40
+          min_samples_split: 10
+          random_state: 42
+        xgb:
+          n_estimators: 200
+          max_depth: 40
+          subsample: 0.2
+          colsample_bytree: 0.5
+          random_state: 42
+      COLS_TO_FEATURE_ENGINEER:
+        Fee:
+          - 0
+          - Free
+        NameorNO:
+          - "Y"
+          - NameorNO
+        BreedPure:
+          - "Y"
+          - BreedPure
+      COLS_TO_BIN:
+        Fee:
+          labels:
+            - 0
+            - 1
+            - 2
+            - 3
+            - 4
+          bins:
+            - -1
+            - 0
+            - 100
+            - 200
+            - 300
+            - inf
+        PhotoAmt:
+          labels:
+            - 0
+            - 1
+            - 2
+            - 3
+          bins:
+            - -1
+            - 0
+            - 2
+            - 5
+            - inf
+        VideoAmt:
+          labels:
+            - 0
+            - 1
+            - 2
+            - 3
+          bins:
+            - -1
+            - 0
+            - 1
+            - 2
+            - inf
+      COLOR_DICT:
+        red: '\033[31m'
+        green: '\033[32m'
+        blue: '\033[34m'
+        yellow: '\033[33m'
+        mangenta: '\033[35m'
+        cyan: '\033[36m'
+        white: '\033[37m'
+        reset: '\033[0m'

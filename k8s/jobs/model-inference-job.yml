@@ -1,0 +1,48 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: model-inference-job
+spec:
+  template:
+    metadata:
+      labels:
+        app: model-inference
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: model-inference
+        image: pureadap/infer:latest
+        volumeMounts:
+        - name: validation-data
+          mountPath: /data/validation_data
+        - name: model-rf
+          mountPath: /data/model_rf
+        - name: model-xgb
+          mountPath: /data/model_xgb
+        - name: shared-config
+          mountPath: /data/config
+        - name: inference-rf
+          mountPath: /data/saved_metrics/rf
+        - name: inference-xgb
+          mountPath: /data/saved_metrics/xgb
+
+      volumes:
+      - name: inference-xgb
+        persistentVolumeClaim:
+          claimName: pvc-metrics-xgb
+      - name: inference-rf
+        persistentVolumeClaim:
+          claimName: pvc-metrics-rf
+      - name: validation-data
+        persistentVolumeClaim:
+          claimName: pvc-validation-data
+      - name: model-rf
+        persistentVolumeClaim:
+          claimName: pvc-model-rf
+      - name: model-xgb
+        persistentVolumeClaim:
+          claimName: pvc-model-xgb
+      - name: shared-config
+        configMap:
+          name: shared-config
+  backoffLimit: 0

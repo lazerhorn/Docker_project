@@ -1,0 +1,82 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-model-rf
+spec:
+  storageClassName: ""  # Explicitly set no storage class
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  volumeName: pv-model-rf  # Bind this PVC to the specific PV
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-model-xgb
+spec:
+  storageClassName: ""  # Explicitly set no storage class
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  volumeName: pv-model-xgb  # Bind this PVC to the specific PV
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-training-data
+spec:
+  storageClassName: ""  # Explicitly set no storage class
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  volumeName: pv-training-data  # Bind this PVC to the specific PV
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-validation-data
+spec:
+  storageClassName: ""  # Explicitly set no storage class
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  volumeName: pv-validation-data  # Bind this PVC to the specific PV
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-metrics-rf
+spec:
+  storageClassName: ""  # Explicitly set no storage class
+  accessModes:
+    - ReadWriteMany  # Should match the access mode of the PV
+  resources:
+    requests:
+      storage: 1Gi  # Requesting 10Gi of storage
+  volumeName: pv-metrics-rf
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-metrics-xgb
+spec:
+  storageClassName: ""  # Explicitly set no storage class
+  accessModes:
+    - ReadWriteMany  # Should match the access mode of the PV
+  resources:
+    requests:
+      storage: 1Gi  # Requesting 10Gi of storage
+  volumeName: pv-metrics-xgb

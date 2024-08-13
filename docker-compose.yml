@@ -1,0 +1,46 @@
+version: '3.8'
+services:
+  data_processing:
+    build: ./src/data_processing
+    volumes:
+      - ./raw_data:/data/raw # Bind mount (linked to your local filesystem)
+      - training_data:/data/training_data # Named volume
+      - validation_data:/data/validation_data # Named volume
+      - ./shared_config:/data/config
+    networks:
+      - my_network
+
+  data_modelling:
+    build: ./src/data_modelling
+    volumes:
+      - training_data:/data/training_data # Named volume
+      - validation_data:/data/validation_data # Named volume
+      - model_rf:/data/model_rf # Named volume
+      - model_xgb:/data/model_xgb # Named volume
+      - ./shared_config:/data/config
+    networks:
+      - my_network
+    depends_on:
+      - data_processing
+
+  model_inference:
+    build: ./src/model_inference
+    volumes:
+      - validation_data:/data/validation_data # Named volume
+      - model_rf:/data/model_rf # Named volume
+      - model_xgb:/data/model_xgb # Named volume
+      - ./shared_config:/data/config
+    networks:
+      - my_network
+    depends_on:
+      - data_modelling
+
+networks:
+  my_network:
+
+volumes:
+  training_data:
+  validation_data:
+  model_rf:
+  model_xgb:
+  config:

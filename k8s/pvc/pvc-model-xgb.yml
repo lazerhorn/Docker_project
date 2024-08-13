@@ -11,3 +11,8 @@ spec:
       storage: 1Gi
   volumeName: pv-model-xgb  # Bind this PVC to the specific PV
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 62278d770fb064529f3f88a132c9c7ecb56d9cd0

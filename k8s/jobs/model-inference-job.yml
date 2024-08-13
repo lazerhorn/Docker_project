@@ -3,6 +3,9 @@ kind: Job
 metadata:
   name: model-inference-job
 spec:
+  completions: 1  # Number of successful completions needed
+  parallelism: 1  # Number of pods to run concurrently
+  backoffLimit: 4  # Number of retries before considering the Job failed
   template:
     metadata:
       labels:
@@ -11,7 +14,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: model-inference
-        image: pureadap/infer:latest
+        image: lazerhorn/model_inference:latestv2
         volumeMounts:
         - name: validation-data
           mountPath: /data/validation_data
@@ -25,7 +28,6 @@ spec:
           mountPath: /data/saved_metrics/rf
         - name: inference-xgb
           mountPath: /data/saved_metrics/xgb
-
       volumes:
       - name: inference-xgb
         persistentVolumeClaim:
@@ -45,4 +47,3 @@ spec:
       - name: shared-config
         configMap:
           name: shared-config
-  backoffLimit: 0

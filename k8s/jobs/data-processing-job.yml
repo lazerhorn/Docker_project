@@ -3,6 +3,9 @@ kind: Job
 metadata:
   name: data-processing-job
 spec:
+  completions: 1  # Number of successful completions needed
+  parallelism: 1  # Number of pods to run concurrently
+  backoffLimit: 4  # Number of retries before considering the Job failed
   template:
     metadata:
       labels:
@@ -34,4 +37,3 @@ spec:
       - name: shared-config
         configMap:
           name: shared-config
-  backoffLimit: 4

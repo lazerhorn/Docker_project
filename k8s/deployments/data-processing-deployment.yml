@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: data-processing
-        image: lazerhorn/caiesubmission-data_processing:latest  # Replace with your actual image name
+        image: lazerhorn/caiesubmission-data_processing:latest 
         volumeMounts:
         - name: raw-data
           mountPath: /data/raw

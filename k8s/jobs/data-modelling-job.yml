@@ -3,6 +3,9 @@ kind: Job
 metadata:
   name: data-modelling-job
 spec:
+  completions: 1  # Number of successful completions needed
+  parallelism: 1  # Number of pods to run concurrently
+  backoffLimit: 4  # Number of retries before considering the Job failed
   template:
     metadata:
       labels:
@@ -11,7 +14,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: data-modelling
-        image: lazerhorn/my-repo:latest  # Replace with your actual image name
+        image: lazerhorn/my-repo:latest 
         volumeMounts:
         - name: training-data
           mountPath: /data/training_data
@@ -39,4 +42,3 @@ spec:
       - name: shared-config
         configMap:
           name: shared-config
-  backoffLimit: 4

@@ -11,7 +11,7 @@ spec:
       labels:
         app: data-modelling
     spec:
-      restartPolicy: Never
+      restartPolicy: OnFailure #Self-Healing
       containers:
       - name: data-modelling
         image: lazerhorn/data_modelling:latestv3

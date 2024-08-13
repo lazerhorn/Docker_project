@@ -11,7 +11,7 @@ spec:
       labels:
         app: model-inference
     spec:
-      restartPolicy: Never
+      restartPolicy: OnFailure #Self-Healing
       containers:
       - name: model-inference
         image: lazerhorn/model_inference:latestv4

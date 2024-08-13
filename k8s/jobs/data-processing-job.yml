@@ -11,7 +11,7 @@ spec:
       labels:
         app: data-processing
     spec:
-      restartPolicy: Never
+      restartPolicy: OnFailure #Self-Healing
       containers:
       - name: data-processing
         image: lazerhorn/data_processing:latestv2

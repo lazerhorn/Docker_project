@@ -1,6 +1,11 @@
 ## **How to Run (If not using sh files (manually))**
 
 Before starting any processing modules, you need to mount your local drive to Minikube. This allows Minikube to access the dataset stored on your local machine. Execute the following command:
+First start minikube
+
+```bash
+minikube start
+```
 
 ```bash
 minikube mount /mnt/c/Users/adapt/OneDrive/game/Documents/Desktop/aisol/raw_data:/data/raw
@@ -9,6 +14,11 @@ minikube mount /mnt/c/Users/adapt/OneDrive/game/Documents/Desktop/aisol/raw_data
 
 This mounts the local directory `/mnt/c/Users/adapt/OneDrive/game/Documents/Desktop/aisol/raw_data` (Replace this with your file path to the raw_data) to the
 `/data/raw` (DO NOT CHANGE THIS FILE PATH) directory within Minikube, enabling it to read the dataset required for processing.
+
+Next remember to deploy all the pv/pvc/cm before running any jobs or deployment
+```bash
+./run-pv-pvc-cm.sh
+```
 
 ## **How to Run (If using sh files)**
 
@@ -33,12 +43,18 @@ We provide several `run.sh` scripts for different purposes:
 - **`run-delete-pv-pvc-cm.sh`**  
   Use this script to delete all the Persistent Volumes (PV), Persistent Volume Claims (PVC), and ConfigMaps (CM) listed in the script. This is useful for cleaning up resources before a fresh deployment.
 
+- **`run-hpa.sh`**  
+  Use this script to create all the horizontal pod scaling (HPA)
+
+- **`delete-hpa.sh`**  
+  Use this script to delete all the horizontal pod scaling (HPA)
+
 ## **Kubernetes Jobs and Deployments: Implementation Details**
 
 ### **Kubernetes Deployments**
 **Scaling**
 - **Manual Scaling**: We can adjust the number of replicas in the Deployment using the `kubectl scale` command. For example:
-  kubectl scale deployment model-inference-deployment --replicas=4
+  kubectl scale deployment data-modelling --replicas=4
 
 **Self-Healing**
 - **Automatic Replacement**: Kubernetes Deployments automatically replace failed or unresponsive Pods to maintain the desired number of replicas. So it already has built in self healing.

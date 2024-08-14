@@ -8,9 +8,10 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 import pickle
 import yaml
+import time
 
 # Global variables
-current_stage = 1
+current_stage = 0
 current_file_name = ''
 color_codes = {}
 
@@ -28,7 +29,7 @@ def print_output_text_with_color(text: str, color: str, current_file_name: str =
     if color == 'yellow': 
         current_stage += 1
 
-    print(f'{color_codes.get("blue", "")}({current_file_name}): {color_codes.get(color, "")}{str(current_stage) + "/10"} {text} {color_codes.get("reset", "")}')
+    print(f'{color_codes.get("blue", "")}({current_file_name}): {color_codes.get(color, "")}{str(current_stage) + "/9"} {text} {color_codes.get("reset", "")}')
     
 def load_config(config_file: str = '/data/config/config.yml') -> dict:
     """Loads the YAML configuration file.
@@ -296,4 +297,10 @@ def main():
         print_output_text_with_color(f"(model {model_name}): Model evaluation done!", 'green', current_file_name, color_codes)
 
 if __name__ == "__main__":
-    main()
+    while True:
+        current_stage = 0  # Reset num to 0 at the start of each new round
+        print("\nStarting a new round of execution...")
+        main()
+        print("Finished execution.")
+        print("Waiting 1 minute before the next round...")
+        time.sleep(60)

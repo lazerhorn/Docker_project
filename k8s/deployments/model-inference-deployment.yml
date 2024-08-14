@@ -7,6 +7,14 @@ spec:
   selector:
     matchLabels:
       app: model-inference
+  progressDeadlineSeconds: 600  # Maximum time in seconds for a deployment to make progress before it is considered failed
+  minReadySeconds: 60           # Minimum time in seconds for a pod to be ready before it is considered available
+  revisionHistoryLimit: 5       # Number of old ReplicaSets to retain for rollback purposes
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1               # Maximum number of pods that can be created over the desired number of pods
+      maxUnavailable: 1         # Maximum number of pods that can be unavailable during the update process
   template:
     metadata:
       labels:
@@ -14,7 +22,14 @@ spec:
     spec:
       containers:
       - name: model-inference
-        image: lazerhorn/model_inference:latestv4
+        image: lazerhorn/model_inference:latestv6
+        resources:
+          requests:
+            memory: "512Mi"        # Minimum memory required
+            cpu: "250m"          # Minimum CPU required
+          limits:
+            memory: "2Gi"        # Maximum memory allowed
+            cpu: "500m"             # Maximum CPU allowed (1 full CPU core)
         volumeMounts:
         - name: validation-data
           mountPath: /data/validation_data

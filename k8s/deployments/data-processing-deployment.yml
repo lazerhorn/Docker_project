@@ -7,6 +7,14 @@ spec:
   selector:
     matchLabels:
       app: data-processing
+  progressDeadlineSeconds: 600  # Maximum time in seconds for a deployment to make progress before it is considered failed
+  minReadySeconds: 120          # Minimum time in seconds for a pod to be ready before it is considered available
+  revisionHistoryLimit: 5       # Number of old ReplicaSets to retain for rollback purposes
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1               # Maximum number of pods that can be created over the desired number of pods
+      maxUnavailable: 1         # Maximum number of pods that can be unavailable during the update process
   template:
     metadata:
       labels:
@@ -14,7 +22,14 @@ spec:
     spec:
       containers:
       - name: data-processing
-        image: lazerhorn/data_processing:latestv2 
+        image: lazerhorn/data_processing:latestv5
+        resources:
+          requests:
+            memory: "512Mi"      # Minimum memory required
+            cpu: "250m"          # Minimum CPU required
+          limits:
+            memory: "1Gi"        # Maximum memory allowed
+            cpu: "500m"          # Maximum CPU allowed
         volumeMounts:
         - name: raw-data
           mountPath: /data/raw
@@ -24,14 +39,7 @@ spec:
           mountPath: /data/validation_data
         - name: shared-config
           mountPath: /data/config
-        readinessProbe:
-          httpGet:
-            path: /healthz  # This should match an endpoint that returns 200 OK when the app is ready
-            port: 8080      # Replace with the port your app is listening on
-          initialDelaySeconds: 60
-          periodSeconds: 10
-          timeoutSeconds: 1
-          failureThreshold: 3
+            
       volumes:
       - name: raw-data
         hostPath:

@@ -7,6 +7,9 @@ spec:
   selector:
     matchLabels:
       app: data-modelling
+  progressDeadlineSeconds: 600  # Maximum time in seconds for a deployment to make progress before it is considered failed
+  minReadySeconds: 30           # Minimum time in seconds for a pod to be ready before it is considered available
+  revisionHistoryLimit: 5       # Number of old ReplicaSets to retain for rollback purposes
   template:
     metadata:
       labels:
@@ -14,7 +17,14 @@ spec:
     spec:
       containers:
       - name: data-modelling
-        image: lazerhorn/data_modelling:latestv3
+        image: lazerhorn/data_modelling:latestv4
+        resources:
+          requests:
+            memory: "1Gi"      # Minimum memory required
+            cpu: "1"          # Minimum CPU required
+          limits:
+            memory: "2Gi"        # Maximum memory allowed
+            cpu: "2"          # Maximum CPU allowed
         volumeMounts:
         - name: training-data
           mountPath: /data/training_data
@@ -42,3 +52,8 @@ spec:
       - name: shared-config
         configMap:
           name: shared-config
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1

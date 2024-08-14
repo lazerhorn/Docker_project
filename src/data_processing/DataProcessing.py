@@ -6,9 +6,10 @@ import numpy as np
 import sys
 from datetime import datetime
 from sklearn.model_selection import train_test_split
+import time
 
 # Global variables
-current_stage = 1
+current_stage = 0
 current_file_name = ''
 color_codes = ''
 
@@ -24,7 +25,7 @@ def print_output_text_with_color(text: str, color: str) -> None:
     if color == 'yellow': 
         current_stage += 1
 
-    print(f'{color_codes["blue"]}({current_file_name}): {color_codes[color]}{str(current_stage) + "/11"} {text} {color_codes["reset"]}')
+    print(f'{color_codes["blue"]}({current_file_name}): {color_codes[color]}{str(current_stage) + "/10"} {text} {color_codes["reset"]}')
 
 def load_config(config_file: str = '/data/config/config.yml') -> dict:
     """Loads the YAML configuration file.
@@ -334,7 +335,13 @@ def main() -> None:
     save_data(data, output_folder, test_size)
 
 if __name__ == "__main__":
-    main()
+    while True:
+        current_stage = 0  # Reset num to 0 at the start of each new round
+        print("\nStarting a new round of execution...")
+        main()
+        print("Finished execution.")
+        print("Waiting 1 minute before the next round...")
+        time.sleep(60)
 
 
 

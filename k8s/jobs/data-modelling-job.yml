@@ -11,10 +11,17 @@ spec:
       labels:
         app: data-modelling
     spec:
-      restartPolicy: OnFailure #Self-Healing
+      restartPolicy: OnFailure  # Self-Healing
       containers:
       - name: data-modelling
         image: lazerhorn/data_modelling:latestv3
+        resources:
+          requests:
+            memory: "1Gi"    # Minimum memory required
+            cpu: "1"      # Minimum CPU required
+          limits:
+            memory: "2Gi"    # Maximum memory allowed
+            cpu: "2"     # Maximum CPU allowed (1 full CPU core)
         volumeMounts:
         - name: training-data
           mountPath: /data/training_data

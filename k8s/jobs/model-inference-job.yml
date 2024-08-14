@@ -11,10 +11,17 @@ spec:
       labels:
         app: model-inference
     spec:
-      restartPolicy: OnFailure #Self-Healing
+      restartPolicy: OnFailure  # Self-Healing
       containers:
       - name: model-inference
         image: lazerhorn/model_inference:latestv4
+        resources:
+          requests:
+            memory: "512Mi"  # Minimum memory required
+            cpu: "250m"      # Minimum CPU required
+          limits:
+            memory: "2Gi"    # Maximum memory allowed
+            cpu: "500m"      # Maximum CPU allowed
         volumeMounts:
         - name: validation-data
           mountPath: /data/validation_data
